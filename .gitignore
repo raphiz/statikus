@@ -1,0 +1,6 @@
+/dist/
+/_site/
+/bower_components/
+/statikus.egg-info/
+/.cache/
+__pycache__/
