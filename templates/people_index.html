@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block content %}
+    {% for person in people %}
+        <a href="{{person | replace(' ', '_')}}">{{person}}</a>
+    {% endfor %}
+{% endblock %}

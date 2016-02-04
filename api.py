@@ -1,4 +1,5 @@
-from statikus import Statikus
+from statikus import Statikus, render_page, raw_page
+import json
 
 db = {'people': [{'name': 'Jack Jackson'}, {'name': 'Peter Peterson'}]}
 
@@ -9,8 +10,7 @@ app = Statikus(db=db, some_parameter='...')
 @app.requires_asset('scripts', 'scripts/foo.js')
 @app.requires_asset('scripts', 'scripts/baa.js')
 @app.route('people/')
-def people_list(db, some_parameter):
-    print(some_parameter)
+def people_index(db, some_parameter):
     return {'people': [person['name'] for person in db['people']]}
     # implicit = render_page(dict{})
 
@@ -18,13 +18,13 @@ def people_list(db, some_parameter):
 @app.route('people/<name>')
 def people_list(db):
     for person in db['people']:
-        yield render_page(name=person['name'], {'person': person})
+        yield render_page({'person': person}, name=person['name'].replace(' ', '_'))
 
 
 @app.route('api/people/<name>.json')
 def people_raw_data(db):
     for person in db['people']:
-        yield raw_page(name=person['name'], json.dumps({'person': person}))
+        yield raw_page(json.dumps({'person': person, }), name=person['name'].replace(' ', '_'))
 
 
 # TODO:url_for method - see http://flask.pocoo.org/docs/0.10/quickstart/
