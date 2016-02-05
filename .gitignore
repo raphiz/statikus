@@ -3,4 +3,5 @@
 /bower_components/
 /statikus.egg-info/
 /.cache/
+/.eggs/
 __pycache__/
