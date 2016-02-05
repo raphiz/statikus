@@ -20,7 +20,7 @@ class PyTest(TestCommand):
 
 setup(
     name="statikus",
-    version="0.1.0-dev",
+    version="0.1.0.dev0",
     packages=['statikus'],
     author="Raphael Zimmermann",
     author_email="dev@raphael.li",
