@@ -1,4 +1,3 @@
-import pytest
 import re
 from .exceptions import URLParseException
 
