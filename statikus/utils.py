@@ -7,8 +7,10 @@ from http.server import HTTPServer, SimpleHTTPRequestHandler
 def pushd(newDir):
     previousDir = os.getcwd()
     os.chdir(newDir)
-    yield
-    os.chdir(previousDir)
+    try:
+        yield
+    finally:
+        os.chdir(previousDir)
 
 
 class HttpRequestLoggingHandler(SimpleHTTPRequestHandler):
