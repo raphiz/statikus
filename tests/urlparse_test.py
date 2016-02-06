@@ -41,6 +41,22 @@ def test_cleanup_raises_error_for_invalid_chars():
     assert str(exceptionInfo.value) == 'The URL contains non-standart characters!'
 
 
+def test_process_variable_url_raises_exception_when_using_wildcards_and_variables():
+    with pytest.raises(URLParseException) as exceptionInfo:
+        url.process_variable_url('/<href>/*', None, None)
+
+    # Assert exception message
+    assert str(exceptionInfo.value) == "You can't combine wildcards and variables in a URL"
+
+
+def test_process_variable_url_raises_exception_when_not_providing_all_variables():
+    with pytest.raises(URLParseException) as exceptionInfo:
+        url.process_variable_url('/<href>/<foo>', {'href': 'given'}, None)
+
+    # Assert exception message
+    assert str(exceptionInfo.value) == "Missing URL replacements: ['foo']"
+
+
 @pytest.mark.parametrize("url_pattern,expected,variable_replacements,custom_url", [
     ('path/<to>/<where>', 'path/my/site', {'to': 'my', 'where': 'site'}, None),
     ('path/<to>/<to>', 'path/my/my', {'to': 'my'}, None),
