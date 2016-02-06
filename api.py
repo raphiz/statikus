@@ -15,6 +15,11 @@ def people_index(db, some_parameter):
     # implicit = render_page(dict{})
 
 
+@app.route('/')
+def index():
+    return raw_page("Hi! This seems to work!")
+
+
 @app.route('people/<name>')
 def people_list(db):
     for person in db['people']:
@@ -27,9 +32,5 @@ def people_raw_data(db):
         yield raw_page(json.dumps({'person': person, }), name=person['name'].replace(' ', '_'))
 
 
-# TODO:url_for method - see http://flask.pocoo.org/docs/0.10/quickstart/
-# TODO: return redirect(url_for('login'))
-# Return render_page(url='specific', {attrs})
-# Return render_page(name='x', vorname='y', {render_opts:...})
 if __name__ == '__main__':
-    app.run()
+    app.run(serve=True)

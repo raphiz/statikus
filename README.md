@@ -10,3 +10,8 @@ It aims to be something like Flask - just for static sites.
 ## What's next?
 * Make the API more stabile
 * Write tests
+* Logging
+* Asset support - minimize, join css/js
+* redirects
+* url_for method - like http://flask.pocoo.org/docs/0.10/quickstart/
+* TODO: Serve the app - and reload changes - either ALL or just the referenced...

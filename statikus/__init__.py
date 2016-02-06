@@ -25,7 +25,7 @@ class Page:
         if route[-1] == '/':
             path = route + 'index.html'
         dir_name = os.path.dirname(path[1:])
-        if not os.path.exists(dir_name):
+        if len(dir_name) > 0 and not os.path.exists(dir_name):
             os.makedirs(dir_name)
         return path[1:]
 
@@ -83,11 +83,7 @@ class Statikus():
             page = render_page(page)
         return page.render(cleanup(route), context)
 
-    def run(self):
-
-        # TODO: support generators (when using variables/wildcards in URLs)
-        # if it contains <name>, the method must provide it as dict / tuple
-        # if it contains *, the method must provide the full path!
+    def run(self, serve=False):
 
         if os.path.exists(self.destination_dir):
             # This is pretty ugly....
@@ -97,7 +93,6 @@ class Statikus():
 
         created = {}
         with pushd(self.destination_dir):
-            # self.assets_processor(self.assets_dir, self.assets)
             for route, fn in self.routes.items():
                 parameter_names = fn.__code__.co_varnames[:fn.__code__.co_argcount]
                 params = [self.options[key] for key in parameter_names]
@@ -108,13 +103,15 @@ class Statikus():
                                                     'urls must be used!')
                         url = process_variable_url(route, page.variables, page.custom_url)
                         k, v = self._render_page(url, page, fn.__code__.co_name)
-                        # Check for duplicates!
+                        # TODO: Check for duplicates!
                         created[k] = v
                 else:
                     k, v = self._render_page(route, fn(*params), fn.__code__.co_name)
-                    # Check for duplicates!
+                    # TODO: Check for duplicates!
                     # especially /foo/baa/ vs /foo/baa/index.html
                     created[k] = v
+            if serve:
+                utils.serve('0.0.0.0', 8000)
 
 
 def render_page(template_context, **url_variables):
