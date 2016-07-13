@@ -1,6 +1,7 @@
 /build/
 /dist/
 /_site/
+/venv/
 /bower_components/
 /statikus.egg-info/
 /.cache/

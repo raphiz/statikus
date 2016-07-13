@@ -84,13 +84,15 @@ class Statikus():
         return page.render(cleanup(route), context)
 
     def run(self, serve=False):
-
         if os.path.exists(self.destination_dir):
-            # This is pretty ugly....
-            shutil.rmtree(self.destination_dir)
-
-        os.makedirs(self.destination_dir)
-
+            for item in os.listdir(self.destination_dir):
+                item = os.path.join(self.destination_dir, item)
+                if os.path.isfile(item):
+                    os.remove(item)
+                else:
+                    shutil.rmtree(item)
+        else:
+            os.makedirs(self.destination_dir)
         created = {}
         with pushd(self.destination_dir):
             for route, fn in self.routes.items():
@@ -110,8 +112,8 @@ class Statikus():
                     # TODO: Check for duplicates!
                     # especially /foo/baa/ vs /foo/baa/index.html
                     created[k] = v
-            if serve:
-                utils.serve('0.0.0.0', 8000)
+        if serve:
+            utils.serve('0.0.0.0', 8000, self.destination_dir, self.run)
 
 
 def render_page(template_context, **url_variables):
