@@ -1,6 +1,7 @@
 import os
 from jinja2 import Environment, FileSystemLoader
 import shutil
+import glob
 import inspect
 from collections import defaultdict
 from .utils import pushd
@@ -31,14 +32,14 @@ class Page:
 
 
 class JinjaPage(Page):
-    env = Environment(loader=FileSystemLoader(os.path.abspath('templates/')))
 
     def render(self, route, context):
+        loader = FileSystemLoader(os.path.join(context['project_root'], 'templates/'))
+        env = Environment(loader=loader)
         jinja_context = self.data
         jinja_context['assets'] = context['assets']
         jinja_context['options'] = context['options']
-
-        template = self.env.get_template(context['source'] + '.html')
+        template = env.get_template(context['source'] + '.html')
         with open(self.touch(route), 'w') as f:
             f.write(template.render(**jinja_context))
         return route, self
@@ -52,18 +53,55 @@ class RawPage(Page):
         return route, self
 
 
+class Asset():
+
+    def __init__(self, source, destination):
+        self.source = source
+        self.destination = destination
+
+    def __getattr__(self, name):
+        if name == 'url':
+            # TODO: find a better solution...
+            return '/' + self.destination
+        super(AccessCounter, self).__delattr__(name)
+
+
 class Statikus():
 
     def __init__(self, **kwargs):
         self.options = kwargs
         self.destination_dir = '_site/'
+        self.project_root = os.getcwd()
         self.assets_dir = self.destination_dir + '/assets/'
-        self.assets = defaultdict(list)
+        self.assets = defaultdict(set)
         self.routes = {}
+
+    def add_asset(self, category, path):
+        if hasattr(path, '__iter__') and not isinstance(path, str):
+            for p in path:
+                self.add_asset(category, p)
+        else:
+            # TODO: Do this stuff in run! Store patterns only here!
+            matches = glob.glob(path, recursive=True)
+            counter = 0
+            for f in matches:
+                if os.path.exists(f) and not os.path.isdir(f):
+                    counter += 1
+                    abs_f = os.path.abspath(f)
+
+                    # Check if asset is already used
+                    for asset in self.assets[category]:
+                        if asset.source == abs_f:
+                            # asset is already used - aborting
+                            return
+                    print("Adding asset: %s" % f)
+                    self.assets[category].add(Asset(abs_f, f))
+            if counter == 0:
+                print('WARNING: No resouces found for %s' % path)
 
     def requires_asset(self, category, path):
         def decorator(f):
-            self.assets[category].append(path)
+            self.add_asset(category, path)
             return f
         return decorator
 
@@ -75,6 +113,7 @@ class Statikus():
 
     def _render_page(self, route, page, source):
         context = {
+            'project_root': self.project_root,
             'assets': self.assets,
             'options': self.options,
             'source': source
@@ -112,6 +151,17 @@ class Statikus():
                     # TODO: Check for duplicates!
                     # especially /foo/baa/ vs /foo/baa/index.html
                     created[k] = v
+            for category, assets in self.assets.items():
+                # TODO: add hooks for asset handling!
+                for asset in assets:
+                    # Create destination directory
+                    dir_name = os.path.dirname(asset.destination)
+
+                    if len(dir_name) > 0 and not os.path.exists(dir_name):
+                        os.makedirs(dir_name)
+
+                    # Copy source into the destination
+                    shutil.copyfile(asset.source, asset.destination)
         if serve:
             utils.serve('0.0.0.0', 8000, self.destination_dir, self.run)
 

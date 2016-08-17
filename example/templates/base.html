@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% block head %}
+    <title>{% block title %}{% endblock %} - My Webpage</title>
+
+    {% for asset in assets['stylesheets'] %}
+    <link rel="stylesheet" href="{{asset.url}}">
+    {% endfor %}
+
+    {% endblock %}
+</head>
+<body>
+    <div id="content">{% block content %}{% endblock %}</div>
+    <div id="footer">
+        {% block footer %}
+        &copy; Copyright 2013
+        {% endblock %}
+    </div>
+    {% for asset in assets['scripts'] %}
+    <script src="{{ asset.url }}" charset="utf-8"></script>
+    {% endfor %}
+
+</body>
+</html>

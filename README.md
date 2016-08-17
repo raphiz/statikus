@@ -7,11 +7,13 @@
 Statikus (name will probably change in the near future) isn't a typical static site generator!
 It aims to be something like Flask - just for static sites.
 
-## What's next?
-* Make the API more stabile
-* Write tests
-* Logging
-* Asset support - minimize, join css/js
-* redirects
-* url_for method - like http://flask.pocoo.org/docs/0.10/quickstart/
-* TODO: Serve the app - and reload changes - either ALL or just the referenced...
+
+## Run the demo
+
+```bash
+virtualenv -p python3.5 venv
+source venv/bin/activate
+pip install -r requirements.txt
+pip install -r requirements-dev.txt
+python -m example.api
+```

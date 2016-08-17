@@ -1,10 +1,19 @@
 from statikus import Statikus, render_page, raw_page
 import json
+import os
+
+# Temporary workaround..
+os.chdir('example/')
+
 
 db = {'people': [{'name': 'Jack Jackson'}, {'name': 'Peter Peterson'}]}
-
 app = Statikus(db=db, some_parameter='...')
-
+# app.add_asset_handler('scripts', js_minify)
+app.add_asset('scripts', ['script1.foo', 'script2.foo'])
+app.add_asset('scripts', 'scripts/*.js')
+# TODO: This should not add static!
+app.add_asset('static', ['static/**'])
+app.add_asset('stylesheets', 'styles/*.css')
 
 # @app.requires('scripts', ['foo.js', 'baa'])
 @app.requires_asset('scripts', 'scripts/foo.js')
@@ -17,7 +26,7 @@ def people_index(db, some_parameter):
 
 @app.route('/')
 def index():
-    return raw_page("Hi! This seems to work!")
+    return render_page({})
 
 
 @app.route('people/<name>')
